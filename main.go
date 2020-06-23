@@ -116,6 +116,9 @@ func checkDoesPosesEqual(a [][]pos, b []pos) bool {
 
 func main() {
 	count := 10
+	if count > 92 {
+		count = 92
+	}
 	send := make(chan bool)
 	posss := make([][]pos, count)
 
