@@ -8,8 +8,10 @@ import (
 	"time"
 )
 
+// board size
 const size int = 8
 
+// pos structure for board
 type pos struct {
 	x, y int
 }
@@ -34,6 +36,7 @@ func doesPosIntersect(p []pos, q pos) bool {
 	return false
 }
 
+// check intersection between two poses
 func checkIntersection(p pos, q pos) bool {
 	// check x axis
 	if p.x == q.x {
@@ -99,6 +102,7 @@ func generatePos(p []pos) pos {
 	}
 }
 
+// sort poses by x and then compare new pos scope with existed
 func checkDoesPosesEqual(a [][]pos, b []pos) bool {
 	sort.SliceStable(b, func(i, j int) bool {
 		return b[i].x < b[i].x && b[i].y < b[i].y
@@ -115,31 +119,41 @@ func checkDoesPosesEqual(a [][]pos, b []pos) bool {
 }
 
 func main() {
+	// set count
 	count := 10
+	// 92 is maximum count of ways
 	if count > 92 {
 		count = 92
 	}
+	// chan for getting new valid position scope
 	send := make(chan bool)
+	// create list of position scopes
 	posss := make([][]pos, count)
 
+	// run async func
 	go func() {
 		for {
+			// chan for getting new valid position scope
 			done := make(chan []pos)
 			rand.Seed(time.Now().UnixNano())
 
+			// run 100 async funcs that trying to generate new pos scope
 			for i := 0; i < 100; i++ {
 				go func() {
 					poss := make([]pos, 0, 8)
 					for i := 0; i < 8; i++ {
+						// generate pos and check intersection
 						pos := generatePos(poss)
 						poss = append(poss, pos)
 					}
+					// send succed pos scope
 					done <- poss
 				}()
 			}
 
 			select {
 			case poss := <-done:
+				// check does same scope of poses exist
 				if !checkDoesPosesEqual(posss, poss) {
 					fmt.Println(poss)
 					posss = append(posss, poss)
@@ -149,6 +163,7 @@ func main() {
 		}
 	}()
 
+	// get count of poses scope
 	for j := 0; j < count; {
 		select {
 		case <-send:
